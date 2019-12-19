@@ -27,20 +27,26 @@ const Forms = props => (
   <div>
     <h1>My Form</h1>
     <Formik
-      initialValues={{ name: ``, email: ``, password: `` }}
-      onSubmit={things => {
-        console.log(things);
+      initialValues={{ name: ``, email: "", password: `` }}
+      onSubmit={(values, tools) => {
+        console.log(`things`, values, tools);
+        tools.resetForm();
       }}>
       {props => (
         <Form>
-          <Field name='name' />
+          <Field name='name' type='text' placeholder='name' />
 
-          <Field age='age' />
+          <Field name='email' type='text' placeholder='email' />
 
-          <Field password='password' />
+          <Field name='password' type='password' placeholder='Password' />
+          <Field
+            id='Terms of Service'
+            type='checkbox'
+            name='Terms of Service'
+            checked={props.value}
+          />
 
           <input type='submit' />
-          <h1>yes</h1>
         </Form>
       )}
     </Formik>
