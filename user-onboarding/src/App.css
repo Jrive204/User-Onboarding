@@ -1,3 +1,17 @@
+.red {
+  color: red;
+}
+.formbody {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.formFields {
+  margin: 1%;
+}
+
 .App {
   text-align: center;
 }

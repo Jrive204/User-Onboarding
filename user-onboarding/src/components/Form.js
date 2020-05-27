@@ -1,50 +1,106 @@
-import React from "react";
-import { withFormik, Form, Field, Formik } from "formik";
+import React, { useState } from "react";
+import { Form, Field, Formik, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 
-const Forms = props => (
-  //   <div>
-  //     <h1>My Form</h1>
-  //     <Formik
-  //       initialValues={{ name: ``, email: ``, password: `` }}
-  //       onSubmit={(values, actions) => {}}>
-  //       {props => (
-  //         <form onSubmit={props.handleSubmit}>
-  //           <input
-  //             type='text'
-  //             onChange={props.handleChange}
-  //             onBlur={props.handleBlur}
-  //             value={props.values.name}
-  //             name='name'
-  //           />
-  //           {props.errors.name && <div id='feedback'>{props.errors.name}</div>}
-  //           <button type='submit'>Submit</button>
-  //         </form>
-  //       )}
-  //     </Formik>
-  //   </div>
-  <div>
-    <h1>My Form</h1>
-    <Formik
-      initialValues={{ name: ``, email: ``, password: `` }}
-      onSubmit={things => {
-        console.log(things);
-      }}>
-      {props => (
-        <Form>
-          <Field name='name' />
+const Forms = ({ values, errors, touched, status }) => {
+  const [message, setMessage] = useState([]);
+  console.log(status, `stat`);
 
-          <Field age='age' />
+  //Submits ----
 
-          <Field password='password' />
+  const handleSubmit = (values, { setStatus, resetForm }) => {
+    axios
+      .post(` https://reqres.in/api/users`, values)
 
-          <input type='submit' />
-          <h1>yes</h1>
-        </Form>
-      )}
-    </Formik>
-  </div>
-);
+      .then(res => {
+        console.log(res.data, `success`);
+        setMessage([...message, values]);
+        setStatus(res.data);
+        console.log(values, `values`, status, `yes`);
+        resetForm();
+        console.log(status, `testing stuff please work!`);
+      })
+      .catch(err => console.log(err.response))
+      .finally();
+  };
+  // Checking Validations !! ----
+  const SignupSchema = () =>
+    Yup.object().shape({
+      name: Yup.string().min(3, `Name Too Short!`),
+      email: Yup.string()
+        .email("Invalid email")
+        .required("Email Required"),
+      password: Yup.string().required(`Password required`),
+      terms: Yup.bool()
+        .test(
+          "consent",
+          "You have to agree with our Terms and Conditions!",
+          value => value === true
+        )
+        .required(`You have to agree with Terms of Service!`)
+    });
+
+  // REturn STARTS HERE  - -------------
+  return (
+    <div>
+      <h1>My Form</h1>
+      <Formik
+        initialValues={{ name: ``, email: "", password: `` }}
+        validationSchema={SignupSchema}
+        // validate={validate}
+        onSubmit={handleSubmit}>
+        {({ values }) => {
+          return (
+            <Form className='formbody'>
+              <Field
+                className='formFields'
+                name='name'
+                type='text'
+                placeholder='name'
+              />
+              <ErrorMessage name='name' component='div' className='red' />
+              <Field
+                className='formFields'
+                name='email'
+                type='text'
+                placeholder='email'
+              />
+              <ErrorMessage name='email' component='div' className='red' />
+              <Field
+                className='formFields'
+                name='password'
+                type='password'
+                placeholder='Password'
+              />
+              <ErrorMessage name='password' component='div' className='red' />
+              <label htmlFor='terms'>
+                <Field
+                  id='terms'
+                  type='checkbox'
+                  name='terms'
+                  checked={values.terms}></Field>
+                Agree with Terms of Service
+              </label>
+              &nbsp;
+              <input type='submit' />
+            </Form>
+          );
+        }}
+      </Formik>
+
+      {/* Map starts here !!!!! */}
+      <div>
+        {message.map(e => (
+          <div>
+            <p>{e.name}</p>
+            <p>{e.email}</p>
+            <p>{e.terms}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default Forms;
